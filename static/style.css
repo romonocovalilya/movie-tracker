@@ -224,3 +224,125 @@ form input, form select {
     .form-container { width: 100%; padding: 15px; }
     form input, form select { padding: 12px; font-size: 1rem; }
 }
+
+/* ==========================================================================
+   10. СТИЛИ СТРАНИЦ АВТОРИЗАЦИИ И РЕГИСТРАЦИИ (ПОЛНЫЙ ЭКРАН)
+   ========================================================================== */
+.auth-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Растягивает фон на всю высоту экрана */
+    background-color: #141414;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 400px; /* Ограничение ширины на компьютерах */
+    background-color: #1f1f1f;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.auth-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+/* Стили полей ввода для авторизации */
+.auth-container form input {
+    width: 100%;
+    padding: 16px; /* Крупные поля, удобные для пальцев */
+    margin-bottom: 18px;
+    background-color: #2b2b2b;
+    border: 1px solid #444;
+    color: #fff;
+    border-radius: 8px;
+    /* КРИТИЧНО ДЛЯ МОБИЛЬНЫХ: Шрифт не менее 16px предотвращает авто-зум на смартфонах */
+    font-size: 16px; 
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.auth-container form input:focus {
+    outline: none;
+    border-color: #e50914;
+}
+
+/* Кнопки входа / регистрации */
+.auth-submit-btn {
+    width: 100%;
+    padding: 16px;
+    background-color: #e50914; /* Красный для входа */
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.auth-submit-btn:hover {
+    background-color: #b80710;
+}
+
+.auth-submit-btn.register-mode {
+    background-color: #00df89; /* Зеленый для регистрации */
+    color: #000;
+}
+
+.auth-submit-btn.register-mode:hover {
+    background-color: #00b871;
+}
+
+/* Ссылка переключения под формой */
+.auth-switch-text {
+    margin-top: 25px;
+    font-size: 0.95rem;
+    color: #aaa;
+}
+
+.auth-switch-text a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-switch-text a:hover {
+    text-decoration: underline;
+}
+
+/* Красивая плашка вывода ошибок */
+.auth-error {
+    background-color: rgba(231, 76, 60, 0.2);
+    border: 1px solid #e74c3c;
+    color: #ea6153;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+/* Мобильная адаптация для авторизации (совсем мелкие экраны) */
+@media (max-width: 480px) {
+    .auth-body {
+        padding: 0; /* Убираем отступы вокруг формы на мобильном */
+        align-items: flex-start; /* Чтобы форма начиналась сверху на коротких экранах */
+    }
+    
+    .auth-container {
+        max-width: 100%;
+        min-height: 100vh; /* На смартфонах форма займет ровно весь экран */
+        border-radius: 0; /* Убираем скругления на весь экран */
+        padding: 60px 20px 40px 20px;
+    }
+}

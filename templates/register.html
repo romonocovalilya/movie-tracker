@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Регистрация профиля</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        <h2>✨ Регистрация</h2>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="auth-error">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="post">
+            <input type="text" name="username" placeholder="Придумайте имя пользователя" required autocomplete="username">
+            <input type="password" name="password" placeholder="Придумайте пароль" required autocomplete="new-password">
+            <button type="submit" class="auth-submit-btn register-mode">Создать аккаунт</button>
+        </form>
+        <p class="auth-switch-text">Уже зарегистрированы? <a href="/login">Войти в аккаунт</a></p>
+    </div>
+
+</body>
+</html>
