@@ -1,0 +1,570 @@
+/* ==========================================================================
+   1. ОБНУЛЕНИЕ И БАЗОВЫЕ НАСТРОЙКИ
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #141414; /* Глубокий темный фон в стиле Netflix */
+    color: #ffffff;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+/* Основной контейнер сайта */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* ==========================================================================
+   2. ШАПКА САЙТА И НАВИГАЦИЯ (ВКЛАДКИ)
+   ========================================================================== */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #e50914; /* Фирменный красный цвет */
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Контейнер вкладок */
+.tabs {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap; /* Кнопки переносятся на мобильных устройствах */
+}
+
+/* Базовая кнопка вкладки */
+.tab-btn {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    background-color: #333;
+    border-color: #555;
+}
+
+/* Активная выбранная вкладка франшизы */
+.tab-btn.active {
+    background-color: #e50914;
+    border-color: #e50914;
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
+}
+
+/* Специальный стиль для вкладки Библиотеки */
+.tab-btn.library-btn {
+    background-color: #2c3e50;
+    border-color: #34495e;
+}
+
+.tab-btn.library-btn:hover {
+    background-color: #34495e;
+}
+
+.tab-btn.library-btn.active {
+    background-color: #3498db;
+    border-color: #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.4);
+}
+
+/* ==========================================================================
+   3. ПОИСК И КНОПКИ АДМИНИСТРИРОВАНИЯ
+   ========================================================================== */
+.search-container {
+    max-width: 500px;
+    margin: 25px auto 0 auto;
+    padding: 0 10px;
+}
+
+#search-input {
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #222;
+    border: 1px solid #444;
+    color: white;
+    font-size: 1rem;
+    border-radius: 25px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#search-input:focus {
+    border-color: #e50914;
+    box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
+}
+
+/* Панель кнопок добавления контента */
+.admin-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.add-toggle-btn {
+    background-color: #1f1f1f;
+    color: #00df89; /* Светло-зеленый неон */
+    border: 2px dashed #00df89;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.add-toggle-btn:hover {
+    background-color: rgba(0, 223, 137, 0.1);
+}
+
+.add-toggle-btn.franchise-create-btn {
+    color: #3498db;
+    border-color: #3498db;
+}
+
+.add-toggle-btn.franchise-create-btn:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* ==========================================================================
+   4. ФОРМЫ ВВОДА (СКРЫТЫЕ ПО УМОЛЧАНИЮ)
+   ========================================================================== */
+.form-container {
+    max-width: 500px;
+    margin: 20px auto;
+    background: #1f1f1f;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+.form-container.hidden {
+    display: none;
+}
+
+form h3 {
+    margin-bottom: 20px;
+    color: #fff;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+form input, form select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #2b2b2b;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+form input:focus, form select:focus {
+    outline: none;
+    border-color: #555;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.submit-btn {
+    background: #00df89;
+    color: #000;
+    flex: 1;
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.cancel-btn {
+    background: #e50914;
+    color: #fff;
+    flex: 1;
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+/* ==========================================================================
+   5. ВНУТРЕННИЕ БЛОКИ РАЗДЕЛЕНИЯ И КАТЕГОРИИ
+   ========================================================================== */
+.category-section {
+    margin-top: 35px;
+    margin-bottom: 45px;
+}
+
+.category-title {
+    font-size: 1.4rem;
+    color: #fff;
+    border-bottom: 2px solid #2b2b2b;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   6. КАРТОЧКИ ФИЛЬМОВ / СЕРИАЛОВ
+   ========================================================================== */
+.movie-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1f1f1f;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    border-left: 5px solid #444; /* Нейтральный левый маркер по умолчанию */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Состояние: Просмотрено (Приглушаем карточку, красим маркер в зеленый) */
+.movie-card.watched {
+    border-left-color: #2ecc71;
+    opacity: 0.45;
+}
+
+.movie-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+}
+
+/* Информационный текстовый блок */
+.movie-info {
+    flex-grow: 1;
+    padding-right: 20px;
+}
+
+.movie-info h3 {
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.movie-info p {
+    font-size: 0.9rem;
+    color: #999;
+}
+
+.movie-info strong {
+    color: #eee;
+}
+
+/* Цветовые плашки-бейджы для типов контента */
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.movie { background-color: #3498db; color: #fff; }           /* Синий */
+.badge.series { background-color: #9b59b6; color: #fff; }          /* Фиолетовый */
+.badge.cartoon { background-color: #e67e22; color: #fff; }         /* Оранжевый */
+.badge.animated_series { background-color: #1abc9c; color: #fff; } /* Бирюзовый */
+
+/* Правый блок с кнопками управления на карточке */
+.card-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap; /* Защита от переполнения на мелких экранах */
+}
+
+/* Кнопки оценки (Лайк / Дизлайк) */
+.rating-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.like-btn, .dislike-btn {
+    background: #2b2b2b;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    transition: all 0.2s ease;
+}
+
+.like-btn:hover { background: rgba(46, 204, 113, 0.2); border-color: #2ecc71; }
+.dislike-btn:hover { background: rgba(231, 76, 60, 0.2); border-color: #e74c3c; }
+
+/* Подсветка активных лайков / дизлайков */
+.like-btn.active {
+    background: #2ecc71;
+    border-color: #2ecc71;
+    color: #000;
+}
+
+.dislike-btn.active {
+    background: #e74c3c;
+    border-color: #e74c3c;
+    color: #fff;
+}
+
+/* Кнопка запуска плеера */
+.play-btn {
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.play-btn:hover {
+    background-color: #383838;
+    border-color: #666;
+}
+
+/* Кнопка "Буду смотреть / Просмотрено" */
+.watch-btn {
+    background-color: #e50914;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.watch-btn:hover {
+    background-color: #b80710;
+}
+
+/* Изменение кнопки, если фильм просмотрен */
+.movie-card.watched .watch-btn {
+    background-color: #2ecc71;
+    color: #000;
+}
+
+.movie-card.watched .watch-btn:hover {
+    background-color: #27ae60;
+}
+
+/* ==========================================================================
+   7. СТИЛИ ДЛЯ СТАТИСТИКИ В ВКЛАДКЕ «БИБЛИОТЕКА»
+   ========================================================================== */
+.library-overview {
+    background: #1f1f1f;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 35px;
+    border: 1px solid #2b2b2b;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.library-overview h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #3498db;
+    font-weight: 600;
+}
+
+/* Карточка отдельной франшизы в статистике */
+.franchise-progress-card {
+    background: #2b2b2b;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border: 1px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Контейнер прогресс-бара */
+.progress-bar-bg {
+    background: #444;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+/* Заполняющая линия прогресса */
+.progress-bar-fill {
+    background: #2ecc71; /* Зеленый цвет для обычного заполнения */
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Особое состояние: Франшиза просмотрена на 100% */
+.franchise-progress-card.completed {
+    border-color: #2ecc71;
+    background: rgba(46, 204, 113, 0.05);
+}
+
+.franchise-progress-card.completed .progress-bar-fill {
+    background: #3498db; /* Меняем полосу на синюю в честь победы */
+}
+
+/* Системные уведомления (например, пустой поиск) */
+.no-results {
+    text-align: center;
+    color: #777;
+    font-size: 1.2rem;
+    margin-top: 50px;
+}
+
+.no-results.hidden {
+    display: none;
+}
+
+/* ==========================================================================
+   8. АДАПТИВНЫЙ МОДАЛЬНЫЙ ВИДЕОПЛЕЕР
+   ========================================================================== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.92); /* Очень темная подложка */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px); /* Легкое размытие заднего плана */
+}
+
+.modal.hidden {
+    display: none;
+}
+
+/* Адаптивный каркас для видео 16:9 */
+.modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 850px;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 6px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+
+/* Кнопка закрытия (крестик) */
+.close-modal {
+    position: absolute;
+    top: -45px;
+    right: 0;
+    color: #fff;
+    font-size: 36px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #e50914;
+}
+
+#video-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 6px;
+}
+
+/* ==========================================================================
+   9. АДАПТИВНОСТЬ ДЛЯ СМАРТФОНОВ (МЕДИА-ЗАПРОСЫ)
+   ========================================================================== */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .movie-card {
+        flex-direction: column; /* Элементы встают друг под друга */
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .movie-info {
+        padding-right: 0;
+        margin-bottom: 15px;
+        width: 100%;
+    }
+
+    .card-buttons {
+        width: 100%;
+        justify-content: space-between; /* Кнопки растягиваются по краям */
+    }
+    
+    .rating-buttons {
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    .like-btn, .dislike-btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .play-btn, .watch-btn {
+        flex: 1;
+        text-align: center;
+        font-size: 0.85rem;
+        padding: 12px 10px;
+    }
+}
+/* */

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кино-Хронограф: Flask Security</title>
+    <!-- Flask-теги для подключения файлов из папки static -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header>
+        <div style="text-align: right; font-size: 0.9rem; color: #888;">
+            Пользователь: <strong>{{ username }}</strong> | <a href="/logout" style="color: #e50914;">Выйти</a>
+        </div>
+        <h1>🎬 Мой Кино-Трекер</h1>
+        
+        <div id="tabs-container" class="tabs"></div>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="🔍 Поиск по названию во всех блоках...">
+        </div>
+        <div class="admin-buttons">
+            <button class="add-toggle-btn" onclick="toggleForm('add-media-container')">➕ Добавить видео-контент</button>
+            <button class="add-toggle-btn franchise-create-btn" onclick="toggleForm('add-franchise-container')">📁 Создать новую хронологию</button>
+        </div>
+    </header>
+
+    <div id="add-media-container" class="form-container hidden">
+        <form id="media-form" onsubmit="addNewMedia(event)">
+            <h3>Добавление контента в текущую хронологию</h3>
+            <input type="text" id="form-title" placeholder="Название" required>
+            <select id="form-type">
+                <option value="movie">Фильм</option>
+                <option value="series">Сериал</option>
+                <option value="cartoon">Мультфильм</option>
+                <option value="animated_series">Мультсериал</option>
+            </select>
+            <input type="number" id="form-year" placeholder="Год выпуска" required>
+            <input type="text" id="form-timeline" placeholder="Период в хронологии" required>
+            <input type="url" id="form-video" placeholder="Ссылка на видео" required>
+            <div class="form-buttons">
+                <button type="submit" class="submit-btn">Сохранить</button>
+                <button type="button" class="cancel-btn" onclick="toggleForm('add-media-container')">Отмена</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="add-franchise-container" class="form-container hidden">
+        <form id="franchise-form" onsubmit="addNewFranchise(event)">
+            <h3>Создание новой хронологии</h3>
+            <input type="text" id="franchise-name" placeholder="Название хронологии" required>
+            <div class="form-buttons">
+                <button type="submit" class="submit-btn">Создать вкладку</button>
+                <button type="button" class="cancel-btn" onclick="toggleForm('add-franchise-container')">Отмена</button>
+            </div>
+        </form>
+    </div>
+
+    <main class="container">
+        <div id="no-results" class="no-results hidden">Ничего не найдено 😢</div>
+        <div id="library-overview" class="library-overview hidden"></div>
+        <div id="chronology-list" class="timeline"></div>
+    </main>
+
+    <div id="player-modal" class="modal hidden" onclick="closePlayer()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closePlayer()">&times;</span>
+            <iframe id="video-iframe" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='client.js') }}"></script>
+</body>
+</html>
