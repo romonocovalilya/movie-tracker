@@ -6,18 +6,23 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super-secret-key-change-it-in-production'
+# Безопасный путь для записи базы данных в системную папку хостинга
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join('/tmp', 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 db = SQLAlchemy(app)
+
+# ВАЖНО: Создание таблиц перенесено сюда, чтобы сервер Gunicorn точно увидел обновление
+with app.app_context():
+    db.drop_all()   # Стирает старую конфликтную структуру таблиц
+    db.create_all() # Создает новые таблицы с полями под постеры и описания
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # ==========================================================================
-# 1. СТРУКТУРА ТАБЛИЦ БАЗЫ ДАННЫХ (МОДЕЛИ)
+# МОДЕЛИ ТАБЛИЦ БАЗЫ ДАННЫХ
 # ==========================================================================
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -38,11 +43,8 @@ class MediaItem(db.Model):
     year = db.Column(db.Integer, nullable=False)
     timeline = db.Column(db.String(100), nullable=False)
     video_url = db.Column(db.String(500), nullable=False)
-    # НОВЫЕ ПОЛЯ:
-    poster_url = db.Column(db.String(500), default='') # Ссылка на обложку
-    description = db.Column(db.Text, default='')      # Описание фильма
-    teaser_url = db.Column(db.String(500), default='')  # Ссылка на тизер/трейлер
-    
+    poster_url = db.Column(db.String(500), default='')   # Новая колонка
+    description = db.Column(db.Text, default='')          # Новая колонка
     franchise_id = db.Column(db.Integer, db.ForeignKey('franchise.id'), nullable=False)
 
 class UserProgress(db.Model):
@@ -57,9 +59,8 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # ==========================================================================
-# 2. МАРШРУТЫ АВТОРИЗАЦИИ И БЕЗОПАСНОСТИ
+# МАРШРУТЫ АВТОРИЗАЦИИ
 # ==========================================================================
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -68,8 +69,7 @@ def register():
         if User.query.filter_by(username=username).first():
             flash('Пользователь с таким именем уже существует!')
             return redirect(url_for('register'))
-        hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password_hash=hashed_password)
+        new_user = User(username=username, password_hash=generate_password_hash(password))
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
@@ -95,9 +95,8 @@ def logout():
     return redirect(url_for('login'))
 
 # ==========================================================================
-# 3. МАРШРУТЫ ГЛАВНОЙ СТРАНИЦЫ И API СВЯЗИ
+# РАБОТА С АПИ ДАННЫХ
 # ==========================================================================
-
 @app.route('/')
 @login_required
 def index():
@@ -115,28 +114,16 @@ def get_data():
     
     db_dict = {}
     titles_dict = {}
-    
     for f in franchises:
         db_dict[f.id] = []
         titles_dict[f.id] = f.name
         for item in f.media_items:
             db_dict[f.id].append({
-                "id": item.id,
-                "title": item.title,
-                "type": item.media_type,
-                "year": item.year,
-                "timeline": item.timeline,
-                "video": item.video_url,
-                # ПЕРЕДАЕМ НОВЫЕ ДАННЫЕ В JS:
-                "poster": item.poster_url or '/static/no-poster.png',
-                "description": item.description or 'Описание отсутствует.',
-                "teaser": item.teaser_url or ''
+                "id": item.id, "title": item.title, "type": item.media_type,
+                "year": item.year, "timeline": item.timeline, "video": item.video_url,
+                "poster": item.poster_url, "description": item.description
             })
-            
-    return jsonify({
-        "db": db_dict, "titles": titles_dict,
-        "watched": watched_ids, "likes": likes, "dislikes": dislikes
-    })
+    return jsonify({"db": db_dict, "titles": titles_dict, "watched": watched_ids, "likes": likes, "dislikes": dislikes})
 
 @app.route('/api/franchise', methods=['POST'])
 @login_required
@@ -152,23 +139,13 @@ def add_franchise():
 @login_required
 def add_media():
     data = request.json
-    teaser_url = data.get('teaser', '')
-    
-    # Конвертируем ссылку тизера YouTube в embed-формат для плеера
-    if 'watch?v=' in teaser_url:
-        teaser_url = teaser_url.replace('watch?v=', 'embed/')
-        
+    video_url = data.get('video')
+    if 'watch?v=' in video_url:
+        video_url = video_url.replace('watch?v=', 'embed/')
     new_item = MediaItem(
-        title=data.get('title'),
-        media_type=data.get('type'),
-        year=int(data.get('year')),
-        timeline=data.get('timeline'),
-        video_url=data.get('video'),
-        # СОХРАНЯЕМ НОВЫЕ ПОЛЯ:
-        poster_url=data.get('poster', ''),
-        description=data.get('description', ''),
-        teaser_url=teaser_url,
-        franchise_id=int(data.get('franchise_id'))
+        title=data.get('title'), media_type=data.get('type'), year=int(data.get('year')),
+        timeline=data.get('timeline'), video_url=video_url, franchise_id=int(data.get('franchise_id')),
+        poster_url=data.get('poster', ''), description=data.get('description', '')
     )
     db.session.add(new_item)
     db.session.commit()
@@ -180,29 +157,18 @@ def rate_media():
     data = request.json
     m_id = int(data.get('id'))
     rate_type = data.get('type')
-    
     prog = UserProgress.query.filter_by(user_id=current_user.id, media_id=m_id).first()
     if not prog:
         prog = UserProgress(user_id=current_user.id, media_id=m_id)
         db.session.add(prog)
-        
     if rate_type == 'watch':
         prog.is_watched = not prog.is_watched
     elif rate_type == 'like':
         prog.rating = 'none' if prog.rating == 'like' else 'like'
     elif rate_type == 'dislike':
         prog.rating = 'none' if prog.rating == 'dislike' else 'dislike'
-        
     db.session.commit()
     return jsonify({"status": "success"})
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.drop_all()   # НОВОЕ: Очистит старую сломанную структуру базы данных
-        db.create_all() # Пересоздаст новую структуру со всеми колонками
-        
-    import webbrowser
-    webbrowser.open("http://127.0.0.1:5000")
-    
     app.run(debug=True, use_reloader=False)
-

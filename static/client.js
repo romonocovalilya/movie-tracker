@@ -9,16 +9,18 @@ let searchQuery = '';
 async function loadData() {
     const res = await fetch('/api/data');
     const data = await res.json();
-    db = data.db;
-    franchiseTitles = data.titles;
-    watchedIds = data.watched;
-    likes = data.likes;
-    dislikes = data.dislikes;
+    db = data.db || {};
+    franchiseTitles = data.titles || {};
+    watchedIds = data.watched || [];
+    likes = data.likes || [];
+    dislikes = data.dislikes || [];
 
     const keys = Object.keys(db);
-    if (currentFranchise === 'empty' && keys.length > 0) {
-        currentFranchise = keys[0]; // Исправлен баг выбора первой вкладки
-    } else if (keys.length === 0) {
+    if (keys.length > 0) {
+        if (currentFranchise === 'empty' || !keys.includes(currentFranchise.toString())) {
+            currentFranchise = keys[0];
+        }
+    } else {
         currentFranchise = 'empty';
     }
     renderTabs();
@@ -32,17 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     loadData();
 });
-
-// Управление плеером тизеров
-  function openPlayer(videoUrl) {
-    const modal = document.getElementById('player-modal');
-    document.getElementById('video-iframe').src = videoUrl;
-    modal.classList.remove('hidden');
-}
-function closePlayer() {
-    document.getElementById('video-iframe').src = "";
-    document.getElementById('player-modal').classList.add('hidden');
-}
 
 function toggleForm(formId) {
     document.getElementById(formId).classList.toggle('hidden');
@@ -74,6 +65,8 @@ function renderTabs() {
 async function addNewFranchise(event) {
     event.preventDefault();
     const name = document.getElementById('franchise-name').value.trim();
+    if (!name) return;
+    
     await fetch('/api/franchise', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -94,16 +87,13 @@ async function addNewMedia(event) {
     const year = document.getElementById('form-year').value;
     const timeline = document.getElementById('form-timeline').value;
     const video = document.getElementById('form-video').value;
-    
-    // Считываем новые поля:
-    const poster = document.getElementById('form-poster').value;
-    const teaser = document.getElementById('form-teaser').value;
-    const description = document.getElementById('form-description').value;
+    const poster = document.getElementById('form-poster')?.value || '';
+    const description = document.getElementById('form-description')?.value || '';
 
     await fetch('/api/media', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ title, type, year, timeline, video, poster, teaser, description, franchise_id: currentFranchise })
+        body: JSON.stringify({ title, type, year, timeline, video, poster, description, franchise_id: currentFranchise })
     });
     document.getElementById('media-form').reset();
     toggleForm('add-media-container');
@@ -159,6 +149,8 @@ function renderList() {
         else buildCategoryBlock("Просмотренный контент", filteredLibrary, listContainer);
     } else {
         libraryOverview.classList.add('hidden');
+        if (!db[currentFranchise]) return;
+        
         const filteredData = db[currentFranchise].filter(item => item.title.toLowerCase().includes(searchQuery));
         if (filteredData.length === 0) {
             if(db[currentFranchise].length === 0) listContainer.innerHTML = '<div style="text-align:center; color:#555; margin-top:40px;">Эта хронология пуста.</div>';
@@ -194,37 +186,54 @@ function buildCategoryBlock(categoryName, itemsArray, container) {
         card.className = `movie-card ${isWatched ? 'watched' : ''}`;
         let typeText = item.type === 'movie' ? 'Фильм' : item.type === 'series' ? 'Сериал' : item.type === 'cartoon' ? 'Мультфильм' : 'Мультсериал';
 
-        // Проверяем наличие тизера для отображения кнопки
-        const teaserButtonHtml = item.teaser ? `<button class="play-btn" onclick="openPlayer('${item.teaser}')">🎬 Тизер</button>` : '';
+        // Проверка наличия ссылки на обложку
+        const posterSrc = item.poster && item.poster.trim() !== '' ? item.poster : 'https://unsplash.com';
 
         card.innerHTML = `
-            <!-- Левая часть: Обложка фильма -->
-            <img src="${item.poster}" class="movie-poster" alt="Постер" onerror="this.src='https://placehold.co'">
-            
-            <!-- Центральная часть: Информация и описание -->
-            <div class="movie-info">
-                <span class="badge ${item.type}">${typeText}</span>
-                <h3>${item.title}</h3>
-                <p class="timeline-text">Год: ${item.year} | Хронология: <strong>${item.timeline}</strong></p>
-                <p class="movie-desc">${item.description}</p>
+            <div class="card-main-content">
+                <img src="${posterSrc}" class="movie-poster" alt="Обложка">
+                <div class="movie-info">
+                    <span class="badge ${item.type}">${typeText}</span>
+                    <h3>${item.title}</h3>
+                    <p>Год: ${item.year} | Хронология: <strong>${item.timeline}</strong></p>
+                    ${item.description && item.description.trim() !== '' ? `<div class="movie-description">${item.description}</div>` : ''}
+                </div>
             </div>
-            
-            <!-- Правая часть: Управление -->
-            <div class="card-buttons">
+            <div class="card-buttons" style="padding: 0 20px 20px 20px;">
                 <div class="rating-buttons">
                     <button class="like-btn ${isLiked ? 'active' : ''}" onclick="sendRate(${item.id}, 'like')">👍</button>
                     <button class="dislike-btn ${isDisliked ? 'active' : ''}" onclick="sendRate(${item.id}, 'dislike')">👎</button>
                 </div>
-                ${teaserButtonHtml}
-                <a href="${item.video}" target="_blank" rel="noopener noreferrer" class="play-btn open-site-btn">
+                <button class="teaser-toggle-btn" onclick="toggleTeaser('teaser-${item.id}')">🎬 Тизер</button>
+                <a href="${item.video}" target="_blank" rel="noopener noreferrer" class="play-btn" style="text-decoration: none; display: inline-block; text-align: center;">
                     ▶ Открыть сайт
                 </a>
                 <button class="watch-btn" onclick="sendRate(${item.id}, 'watch')">${isWatched ? '✓ Просмотрено' : 'Буду смотреть'}</button>
             </div>
+            <div id="teaser-${item.id}" class="teaser-player-container hidden"></div>
         `;
         section.appendChild(card);
     });
     container.appendChild(section);
+}
+
+function toggleTeaser(id) {
+    const container = document.getElementById(id);
+    const mediaId = id.replace('teaser-', '');
+    
+    let mediaItem = null;
+    Object.keys(db).forEach(k => {
+        const found = db[k].find(i => i.id == mediaId);
+        if (found) mediaItem = found;
+    });
+
+    container.classList.toggle('hidden');
+
+    if (!container.classList.contains('hidden') && mediaItem) {
+        container.innerHTML = `<iframe src="${mediaItem.video}" allowfullscreen></iframe>`;
+    } else {
+        container.innerHTML = '';
+    }
 }
 
 function switchChronology(franchiseKey) {
