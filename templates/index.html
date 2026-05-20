@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Кино-Хронограф: Flask Security</title>
+    <title>Кино-Хронограф</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -14,7 +14,6 @@
         </div>
         <h1>🎬 Мой Кино-Трекер</h1>
         
-        <!-- Сюда вставляются вкладки из JS -->
         <div id="tabs-container" class="tabs"></div>
         
         <div class="search-container">
@@ -27,11 +26,11 @@
         </div>
     </header>
 
-    <!-- Форма добавления фильма/сериала -->
+    <!-- Обновленная форма добавления -->
     <div id="add-media-container" class="form-container hidden">
         <form id="media-form" onsubmit="addNewMedia(event)">
             <h3>Добавление контента в текущую хронологию</h3>
-            <input type="text" id="form-title" placeholder="Название" required>
+            <input type="text" id="form-title" placeholder="Название фильма/сериала" required>
             <select id="form-type">
                 <option value="movie">Фильм</option>
                 <option value="series">Сериал</option>
@@ -40,8 +39,14 @@
             </select>
             <input type="number" id="form-year" placeholder="Год выпуска" required>
             <input type="text" id="form-timeline" placeholder="Период в хронологии" required>
-            <!-- Подсказка изменена на внешние сайты -->
-            <input type="url" id="form-video" placeholder="Ссылка на фильм (Кинопоиск, Иви, OKKO и др.)" required>
+            
+            <!-- НОВЫЕ ПОЛЯ В ФОРМЕ: -->
+            <input type="url" id="form-poster" placeholder="Ссылка на обложку/постер (URL картинки)">
+            <input type="url" id="form-teaser" placeholder="Ссылка на тизер/трейлер (YouTube)">
+            <textarea id="form-description" placeholder="Краткое описание сюжета..." rows="3" style="width:100%; background:#2b2b2b; color:white; border:1px solid #444; border-radius:6px; padding:10px; margin-bottom:15px; font-family:inherit; font-size:0.95rem; box-sizing:border-box; resize:none;"></textarea>
+            
+            <input type="url" id="form-video" placeholder="Ссылка на сам фильм (Кинопоиск, Иви, торрент и др.)" required>
+            
             <div class="form-buttons">
                 <button type="submit" class="submit-btn">Сохранить</button>
                 <button type="button" class="cancel-btn" onclick="toggleForm('add-media-container')">Отмена</button>
@@ -49,7 +54,6 @@
         </form>
     </div>
 
-    <!-- Форма создания новой хронологии -->
     <div id="add-franchise-container" class="form-container hidden">
         <form id="franchise-form" onsubmit="addNewFranchise(event)">
             <h3>Создание новой хронологии</h3>
@@ -66,6 +70,14 @@
         <div id="library-overview" class="library-overview hidden"></div>
         <div id="chronology-list" class="timeline"></div>
     </main>
+
+    <!-- Окно для просмотра тизеров/трейлеров -->
+    <div id="player-modal" class="modal hidden" onclick="closePlayer()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closePlayer()">&times;</span>
+            <iframe id="video-iframe" src="" frameborder="0" allowfullscreen style="width:100%; height:100%; border:none; border-radius:6px;"></iframe>
+        </div>
+    </div>
 
     <script src="{{ url_for('static', filename='client.js') }}"></script>
 </body>

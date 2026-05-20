@@ -17,7 +17,7 @@ async function loadData() {
 
     const keys = Object.keys(db);
     if (currentFranchise === 'empty' && keys.length > 0) {
-        currentFranchise = keys[0];
+        currentFranchise = keys[0]; // Исправлен баг выбора первой вкладки
     } else if (keys.length === 0) {
         currentFranchise = 'empty';
     }
@@ -32,6 +32,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     loadData();
 });
+
+// Управление плеером тизеров
+  function openPlayer(videoUrl) {
+    const modal = document.getElementById('player-modal');
+    document.getElementById('video-iframe').src = videoUrl;
+    modal.classList.remove('hidden');
+}
+function closePlayer() {
+    document.getElementById('video-iframe').src = "";
+    document.getElementById('player-modal').classList.add('hidden');
+}
 
 function toggleForm(formId) {
     document.getElementById(formId).classList.toggle('hidden');
@@ -83,11 +94,16 @@ async function addNewMedia(event) {
     const year = document.getElementById('form-year').value;
     const timeline = document.getElementById('form-timeline').value;
     const video = document.getElementById('form-video').value;
+    
+    // Считываем новые поля:
+    const poster = document.getElementById('form-poster').value;
+    const teaser = document.getElementById('form-teaser').value;
+    const description = document.getElementById('form-description').value;
 
     await fetch('/api/media', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ title, type, year, timeline, video, franchise_id: currentFranchise })
+        body: JSON.stringify({ title, type, year, timeline, video, poster, teaser, description, franchise_id: currentFranchise })
     });
     document.getElementById('media-form').reset();
     toggleForm('add-media-container');
@@ -178,19 +194,29 @@ function buildCategoryBlock(categoryName, itemsArray, container) {
         card.className = `movie-card ${isWatched ? 'watched' : ''}`;
         let typeText = item.type === 'movie' ? 'Фильм' : item.type === 'series' ? 'Сериал' : item.type === 'cartoon' ? 'Мультфильм' : 'Мультсериал';
 
+        // Проверяем наличие тизера для отображения кнопки
+        const teaserButtonHtml = item.teaser ? `<button class="play-btn" onclick="openPlayer('${item.teaser}')">🎬 Тизер</button>` : '';
+
         card.innerHTML = `
+            <!-- Левая часть: Обложка фильма -->
+            <img src="${item.poster}" class="movie-poster" alt="Постер" onerror="this.src='https://placehold.co'">
+            
+            <!-- Центральная часть: Информация и описание -->
             <div class="movie-info">
                 <span class="badge ${item.type}">${typeText}</span>
                 <h3>${item.title}</h3>
-                <p>Год: ${item.year} | Хронология: <strong>${item.timeline}</strong></p>
+                <p class="timeline-text">Год: ${item.year} | Хронология: <strong>${item.timeline}</strong></p>
+                <p class="movie-desc">${item.description}</p>
             </div>
+            
+            <!-- Правая часть: Управление -->
             <div class="card-buttons">
                 <div class="rating-buttons">
                     <button class="like-btn ${isLiked ? 'active' : ''}" onclick="sendRate(${item.id}, 'like')">👍</button>
                     <button class="dislike-btn ${isDisliked ? 'active' : ''}" onclick="sendRate(${item.id}, 'dislike')">👎</button>
                 </div>
-                <!-- ПРЯМАЯ ССЫЛКА ВМЕСТО ПЛЕЕРА -->
-                <a href="${item.video}" target="_blank" rel="noopener noreferrer" class="play-btn" style="text-decoration: none; display: inline-block; text-align: center;">
+                ${teaserButtonHtml}
+                <a href="${item.video}" target="_blank" rel="noopener noreferrer" class="play-btn open-site-btn">
                     ▶ Открыть сайт
                 </a>
                 <button class="watch-btn" onclick="sendRate(${item.id}, 'watch')">${isWatched ? '✓ Просмотрено' : 'Буду смотреть'}</button>
