@@ -189,7 +189,10 @@ function buildCategoryBlock(categoryName, itemsArray, container) {
                     <button class="like-btn ${isLiked ? 'active' : ''}" onclick="sendRate(${item.id}, 'like')">👍</button>
                     <button class="dislike-btn ${isDisliked ? 'active' : ''}" onclick="sendRate(${item.id}, 'dislike')">👎</button>
                 </div>
-                <button class="play-btn" onclick="openPlayer('${item.video}')">▶ Смотреть</button>
+                <!-- ПРЯМАЯ ССЫЛКА ВМЕСТО ПЛЕЕРА -->
+                <a href="${item.video}" target="_blank" rel="noopener noreferrer" class="play-btn" style="text-decoration: none; display: inline-block; text-align: center;">
+                    ▶ Открыть сайт
+                </a>
                 <button class="watch-btn" onclick="sendRate(${item.id}, 'watch')">${isWatched ? '✓ Просмотрено' : 'Буду смотреть'}</button>
             </div>
         `;
@@ -198,14 +201,6 @@ function buildCategoryBlock(categoryName, itemsArray, container) {
     container.appendChild(section);
 }
 
-function openPlayer(videoUrl) {
-    document.getElementById('video-iframe').src = videoUrl;
-    document.getElementById('player-modal').classList.remove('hidden');
-}
-function closePlayer() {
-    document.getElementById('video-iframe').src = "";
-    document.getElementById('player-modal').classList.add('hidden');
-}
 function switchChronology(franchiseKey) {
     currentFranchise = franchiseKey;
     searchQuery = '';
