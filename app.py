@@ -198,7 +198,11 @@ def rate_media():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        db.drop_all()   # НОВОЕ: Очистит старую сломанную структуру базы данных
+        db.create_all() # Пересоздаст новую структуру со всеми колонками
+        
     import webbrowser
     webbrowser.open("http://127.0.0.1:5000")
+    
     app.run(debug=True, use_reloader=False)
+
